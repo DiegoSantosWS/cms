@@ -1,9 +1,6 @@
 package helpers
 
 import (
-	"net/http"
-
-	m "github.com/DiegoSantosWS/cms/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -17,12 +14,4 @@ func HashPassword(password string) (string, error) {
 func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
-}
-
-func CheckSession(w http.ResponseWriter, r *http.Request) {
-	session, _ := m.Store.Get(r, "logado")
-	if auth, ok := session.Values["autorizado"].(bool); !ok || !auth {
-		http.Error(w, "Acesso negado", http.StatusForbidden)
-		return
-	}
 }

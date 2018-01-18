@@ -15,6 +15,7 @@ func Routers() {
 	//Rotas de menus do sistema
 	r.HandleFunc("/", models.Login)            //abre arquivo de login.html
 	r.HandleFunc("/login", models.Login)       //realiza login do usuario
+	r.HandleFunc("/logout", models.Logout)     //realiza logout do usuario
 	r.HandleFunc("/internal", models.Internal) //realiza login do usuario
 	r.HandleFunc("/usuarios", models.Usuarios)
 	r.HandleFunc("/usuarios/{id}", models.Usuario)

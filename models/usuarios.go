@@ -20,6 +20,7 @@ type DadosUsuarios struct {
 
 //Usuarios carrega template da lista dos usuarios
 func Usuarios(w http.ResponseWriter, r *http.Request) {
+	CheckSession(w, r)
 	sql := "SELECT id, name, email, login, type FROM users "
 	rows, err := cone.Db.Queryx(sql)
 	if err != nil {
@@ -65,13 +66,17 @@ func Usuario(w http.ResponseWriter, r *http.Request) {
 
 //DeleteUsuario deleta um usuario
 func DeleteUsuario(w http.ResponseWriter, r *http.Request) {
-
 	vars := mux.Vars(r)
 	id := vars["id"]
 	meths := vars["method"]
-	fmt.Println(meths)
 
 	if meths == "delete" {
-		fmt.Println("DELETE: ", id)
+		//Executa comando
+		sql, err := cone.Db.Queryx("DELETE FROM users WHERE id = ?", id)
+		if err != nil {
+			http.Error(w, "[DELETE], erro ao deletar", http.StatusInternalServerError)
+			fmt.Println("DELETE: erro na execução do modelo", sql, " - ", err.Error())
+		}
+		http.Redirect(w, r, "/usuarios", 302)
 	}
 }
