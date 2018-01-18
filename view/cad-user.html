@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>CMS CAD-USER</title>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+        <link rel="stylesheet" href="/static/css/style.css" >
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                {{if .Secesso}}
+                    <div class="col-12 text-center mt-5">
+                        <p><h1  class="text-primary">Cadastro realizado com sucesso</h1></p>
+                        <p><button type="button" class="btn btn-danger" onclick="window.location='/'">Voltar</button></p>
+                    </div>
+                {{else}}
+                    <div class="col-12 text-center mt-5">
+                        <p><h1  class="text-primary">cadastro</h1></p>  
+                    </div>
+                {{end}}
+
+            </div>
+            <div class="row justify-content-sm-center">
+                <form action="/cad-user" method="POST">
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="name">Nome:</label>
+                            <input type="text" required="required" name="name" id="name" class="form-control" placeholder="Digite seu nome" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="email">E-mail:</label>
+                            <input type="email" required="required" name="email" id="email" class="form-control" placeholder="Digite seu email" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="usuario">Usuário:</label>
+                            <input type="text" required="required" name="usuario" id="usuario" class="form-control" placeholder="Digite seu usuario" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="pass">Senha:</label>
+                            <input type="password" name="pass" id="pass" class="form-control" placeholder="Digite sua senha" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="tipo">Tipo:</label>
+                            <select name="tipo" id="tipo" class="select form-control">
+                                <option>Selecione um Tipo</option>
+                                <option value="Admin">Administrador</option>
+                                <option value="User">Usuario</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-lg btn-block">Cadastrar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+        <script src="https://use.fontawesome.com/752dbceb52.js"></script>
+    </body>
+</html>
