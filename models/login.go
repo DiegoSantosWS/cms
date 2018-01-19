@@ -3,10 +3,12 @@ package models
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/sessions"
 
 	"github.com/DiegoSantosWS/cms/cone"
+	"github.com/DiegoSantosWS/cms/helpers"
 
 	ctrl "github.com/DiegoSantosWS/cms/controller"
 )
@@ -29,6 +31,7 @@ type UsuarioLogado struct {
 	Email   string `db:"email"`
 	Usuario string `db:"login"`
 	Tipo    string `db:"type"`
+	Senha   string `db:"pass"`
 }
 
 //Logout faz logout com usuario
@@ -66,8 +69,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 		//Vamos verificar se usuario se senha Existe
 		user := UsuarioLogado{}
-		sql := "SELECT id, name, email, login FROM users WHERE login =? AND pass = ?"
-		rows, err := cone.Db.Queryx(sql, usr.User, usr.Pass)
+		sql := "SELECT id, name, email, login, pass FROM users WHERE login =? "
+		rows, err := cone.Db.Queryx(sql, usr.User)
 		if err != nil {
 			fmt.Println("[LOGIN] Erro ao executar o login", sql, " - ", err.Error())
 			return
@@ -81,15 +84,21 @@ func Login(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		session, _ := Store.Get(r, "logado")
-		session.Values["ID"] = user.ID
-		session.Values["Nome"] = user.Nome
-		session.Values["Email"] = user.Email
-		session.Values["Tipo"] = user.Tipo
-		session.Values["autorizado"] = true
-		session.Save(r, w)
-		CheckSession(w, r)
-		http.Redirect(w, r, "/internal", 302)
+		entrar := helpers.CheckPasswordHash(usr.Pass, user.Senha)
+		if entrar != false {
+			session, _ := Store.Get(r, "logado")
+			session.Values["ID"] = user.ID
+			session.Values["Nome"] = user.Nome
+			session.Values["Email"] = user.Email
+			session.Values["Tipo"] = user.Tipo
+			session.Values["autorizado"] = true
+			session.Save(r, w)
+			CheckSession(w, r)
+			LogAcesso(user.Nome, user.Tipo, "Sucesso")
+			http.Redirect(w, r, "/internal", 302)
+		}
+		LogAcesso(user.Nome, user.Tipo, "Falha")
+		http.Redirect(w, r, "/", 302)
 	}
 }
 
@@ -100,5 +109,15 @@ func CheckSession(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Acesso negado", http.StatusForbidden)
 		http.Redirect(w, r, "/", 302)
 		return
+	}
+}
+
+//LogAcesso salva um log de acesso false ou true
+func LogAcesso(usr, tipo, status string) {
+
+	sql := "INSERT INTO log_access (user, tipo, status, data) VALUES (?,?,?, NOW() ) "
+	_, err := cone.Db.Exec(sql, usr, tipo, status, time.Now().Format("02/01/2006 15:04:05"))
+	if err != nil {
+		fmt.Println("[LOG] error no log", err.Error())
 	}
 }

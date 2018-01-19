@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
     <head>
-        <title>CMS LOGIN</title>
+        <title>CMS CAD-USER</title>
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -48,13 +48,51 @@
                 </nav>
             </div>
             <div class="container">
-                <div class="row">
+                <div class="row mt-5">
                     <div class="col-12 text-center mt-5">
-                    <p><h1  class="text-primary">CMS</h1></p>  
+                        <h1>Alterar Usuário: <span class="text-primary  mt-5">{{.Nome}}</span></h1>
                     </div>
                 </div>
-                <div class="row justify-content-sm-center">
-                    <h1>Seja bem vindo</h1>
+                <div class="justify-content-sm-center  mt-5">
+                    <form action="/usuarios/{{.Id}}" method="POST">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="name">Nome:</label>
+                                <input type="text" required="required" name="name" id="name" class="form-control" value="{{.Nome}}"autocomplete="off">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="email">E-mail:</label>
+                                <input type="email" required="required" name="email" id="email" class="form-control" value="{{.Email}}" autocomplete="off">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="usuario">Usuário:</label>
+                                <input type="text" required="required" name="usuario" id="usuario" class="form-control" value="{{.Usuario}}" placeholder="Digite seu usuario" autocomplete="off">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="pass">Senha:</label>
+                                <input type="password" name="pass" id="pass" class="form-control" placeholder="Digite sua senha" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipo">Tipo:</label>
+                            <select name="tipo" id="tipo" class="select form-control">
+                                <option>Selecione um Tipo</option>
+                                {{if eq .Tipo "Admin"}}
+                                    <option value="Admin" id="{{.Tipo}}" selected="selected">Administrador</option>
+                                    <option value="User">Usuario</option>
+                                {{else}}
+                                    <option value="Admin">Administrador</option>
+                                    <option value="User"  id="{{.Tipo}}" selected="selected">Usuario</option>
+                                {{end}}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Alterar</button>
+                        <button type="button" onclick="window.location='/usuarios'" class="btn btn-warning">Voltar</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         <!-- Optional JavaScript -->

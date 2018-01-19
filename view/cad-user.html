@@ -13,46 +13,78 @@
     </head>
     <body>
         <div class="container">
-            <div class="row">
-                {{if .Secesso}}
-                    <div class="col-12 text-center mt-5">
-                        <p><h1  class="text-primary">Cadastro realizado com sucesso</h1></p>
-                        <p><button type="button" class="btn btn-danger" onclick="window.location='/'">Voltar</button></p>
+            <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-primary">
+                    <div class="container">
+                        <a class="navbar-brand h1 mb-0" href="/internal">Inicio</a>
+                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsite">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarsite">
+                            <ul class="navbar-nav mr-auto">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="navDrop">Cadastros</a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="/conteudo">Conteudo</a>  
+                                        <a class="dropdown-item" href="/grupos">Grupos</a>
+                                        <a class="dropdown-item" href="/categorias">Categorias</a>
+                                        <a class="dropdown-item" href="/usuarios">Usuarios</a>
+                                    </div>
+                                </li>
+                                <!--<li class="nav-item"><a class="nav-link" href="/eventos">Eventos</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/contato">Contato</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/depoimentos">Depoimentos</a></li>
+                                -->
+                            </ul>
+                            <ul class="navbar-nav ml-auto">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="navDrop">Config</a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="/logout" target="_blank">Sair</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                {{else}}
-                    <div class="col-12 text-center mt-5">
-                        <p><h1  class="text-primary">cadastro</h1></p>  
-                    </div>
-                {{end}}
-
+                </nav>
             </div>
-            <div class="row justify-content-sm-center">
-                <form action="/cad-user" method="POST">
-                    <div class="row">
-                        <div class="form-group">
-                            <label for="name">Nome:</label>
-                            <input type="text" required="required" name="name" id="name" class="form-control" placeholder="Digite seu nome" autocomplete="off">
+            <div class="container">
+                <div class="row">
+                    {{if .Secesso}}
+                        <div class="col-12 text-center mt-5">
+                            <p><h1  class="text-primary">Cadastro realizado com sucesso</h1></p>
+                            <p><button type="button" class="btn btn-danger" onclick="window.location='/'">Voltar</button></p>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group">
-                            <label for="email">E-mail:</label>
-                            <input type="email" required="required" name="email" id="email" class="form-control" placeholder="Digite seu email" autocomplete="off">
+                    {{else}}
+                        <div class="col-12 text-center mt-5">
+                            <p><h1  class="text-primary">cadastro</h1></p>  
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group">
-                            <label for="usuario">Usuário:</label>
-                            <input type="text" required="required" name="usuario" id="usuario" class="form-control" placeholder="Digite seu usuario" autocomplete="off">
+                    {{end}}
+
+                </div>
+                <div class="justify-content-sm-center">
+                    <form action="/cad-user" method="POST">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="name">Nome:</label>
+                                <input type="text" required="required" name="name" id="name" class="form-control" placeholder="Digite seu nome" autocomplete="off">
+                            </div>
+                        
+                            <div class="form-group col-md-6">
+                                <label for="email">E-mail:</label>
+                                <input type="email" required="required" name="email" id="email" class="form-control" placeholder="Digite seu email" autocomplete="off">
+                            </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group">
-                            <label for="pass">Senha:</label>
-                            <input type="password" name="pass" id="pass" class="form-control" placeholder="Digite sua senha" autocomplete="off">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="usuario">Usuário:</label>
+                                <input type="text" required="required" name="usuario" id="usuario" class="form-control" placeholder="Digite seu usuario" autocomplete="off">
+                            </div>
+                        
+                            <div class="form-group col-md-6">
+                                <label for="pass">Senha:</label>
+                                <input type="password" name="pass" id="pass" class="form-control" placeholder="Digite sua senha" autocomplete="off">
+                            </div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="form-group">
                             <label for="tipo">Tipo:</label>
                             <select name="tipo" id="tipo" class="select form-control">
@@ -61,12 +93,8 @@
                                 <option value="User">Usuario</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary btn-lg btn-block">Cadastrar</button>
-                        </div>
-                    </div>
+                        <button type="submit" class="btn btn-primary">Cadastrar</button>
+                        <button type="button" onclick="window.location='/internal'" class="btn btn-warning">Voltar</button>
                 </form>
             </div>
         </div>

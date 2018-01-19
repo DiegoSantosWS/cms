@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/DiegoSantosWS/cms/controller"
+	"github.com/DiegoSantosWS/cms/helpers"
+
 	"github.com/DiegoSantosWS/cms/cone"
 	ctrl "github.com/DiegoSantosWS/cms/controller"
 	"github.com/gorilla/mux"
@@ -11,11 +14,22 @@ import (
 
 //DadosUsuarios armazena os dados do login recebido do banco...
 type DadosUsuarios struct {
-	Id      int
-	Nome    string
-	Email   string
-	Usuario string
-	Tipo    string
+	Id        int
+	Nome      string
+	Email     string
+	Usuario   string
+	Tipo      string
+	Selectded bool
+}
+
+//AltUserEx - altera dados do usuario
+type AltUserEx struct {
+	Nome  string
+	Email string
+	Login string
+	Senha string
+	Tipo  string
+	Hash  string
 }
 
 //Usuarios carrega template da lista dos usuarios
@@ -52,16 +66,84 @@ func Usuarios(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//Usuario abre cadastro do usuario para realizar o update
-func Usuario(w http.ResponseWriter, r *http.Request) {
-
+//UpdateUsuario abre cadastro do usuario para realizar o update
+func UpdateUsuario(w http.ResponseWriter, r *http.Request) {
+	CheckSession(w, r) //Verifica se a sessão está iniciada
 	vars := mux.Vars(r)
 	id := vars["id"]
-	fmt.Println(r.URL.Path)
+	//Veifica o metodo inicial para não alterar e sim bucar as informação
+	if r.Method != http.MethodPost {
 
-	if r.Method == http.MethodGet {
-		fmt.Println(id)
+		sql := "SELECT id, name, email, login, type FROM users WHERE id = ? "
+		linha, err := cone.Db.Queryx(sql, id)
+		if err != nil {
+			http.Error(w, "[ERRO] Código inixistente. verifique.", http.StatusInternalServerError)
+			fmt.Println("[ERRO] Usuário não encontrado", err.Error())
+			return
+		}
+		defer linha.Close()
+		u := DadosUsuarios{}
+		for linha.Next() {
+			err := linha.Scan(&u.Id, &u.Nome, &u.Email, &u.Usuario, &u.Tipo)
+			if err != nil {
+				http.Error(w, "[ERRO] Usuário não encontrado", http.StatusInternalServerError)
+				fmt.Println("[ERRO] Usuário não encontrado", err.Error())
+				return
+			}
+			if u.Tipo != "Admin" {
+				u.Selectded = true
+			} else {
+				u.Selectded = true
+			}
+		}
+		controller.ModelosUsuariosPUT.Execute(w, u)
+		return
 	}
+	//Passa para struct os metodos recebido do post
+	dados := AltUserEx{
+		Nome:  r.FormValue("name"),
+		Email: r.FormValue("email"),
+		Login: r.FormValue("usuario"),
+		Senha: r.FormValue("pass"),
+		Tipo:  r.FormValue("tipo"),
+		Hash:  "dsasdçdaskdadk",
+	}
+	var cpSenha string
+	if r.FormValue("pass") != "" {
+		cpSenha, _ = helpers.HashPassword(r.FormValue("pass"))
+	} else { //Fiz assim pq não sei outra forma usando a lingagem GO! se alguem souber pode me mandar por e-mail: tec.infor321@gmail.com
+		sql := "SELECT pass FROM users WHERE id = ? "
+		linha, err := cone.Db.Queryx(sql, id)
+		if err != nil {
+			http.Error(w, "[ERRO] Código inixistente. verifique.", http.StatusInternalServerError)
+			fmt.Println("[ERRO] Usuário não encontrado", err.Error())
+			return
+		}
+		defer linha.Close()
+		var senha string
+		for linha.Next() {
+			err := linha.Scan(&senha)
+			if err != nil {
+				http.Error(w, "[ERRO] Usuário não encontrado", http.StatusInternalServerError)
+				fmt.Println("[ERRO] Usuário não encontrado", err.Error())
+				return
+			}
+			cpSenha = senha
+		}
+	}
+	sql := "UPDATE users SET name = ?, email = ?, login = ?, pass = ?, type = ? WHERE id = ?;"
+	line, err := cone.Db.Exec(sql, dados.Nome, dados.Email, dados.Login, cpSenha, dados.Tipo, id)
+	if err != nil {
+		http.Error(w, "[UPDATE USER] Erro na alteração, ", http.StatusInternalServerError)
+		fmt.Println("[UPDATE USER] Não foi possivel alterar o usuario, ", err.Error())
+	}
+
+	_, err = line.RowsAffected()
+	if err != nil {
+		http.Error(w, "[UPDATE USER] Não alterou nenhuma linha, ", http.StatusInternalServerError)
+		fmt.Println("[UPDATE USER] Não foi possivel alterar o usuario, ", err.Error())
+	}
+	http.Redirect(w, r, "/usuarios/"+id, 302)
 }
 
 //DeleteUsuario deleta um usuario

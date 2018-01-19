@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/DiegoSantosWS/cms/helpers"
+
 	"github.com/DiegoSantosWS/cms/cone"
 	"github.com/DiegoSantosWS/cms/controller"
 )
@@ -32,7 +34,7 @@ func CadUserExternal(w http.ResponseWriter, r *http.Request) {
 		Tipo:  r.FormValue("tipo"),
 		Hash:  "dlklsdkldksdkldklsksd",
 	}
-
+	dados.Senha, _ = helpers.HashPassword(dados.Senha)
 	//tx := cone.Db.MustBegin()
 	//tx.MustExec(tx.Rebind("INSERT INTO users (nome, email, login, pass, type, hash) VALUES (?, ?, ?, ?, ?, ?) "), dados.Nome, dados.Email, dados.Login, dados.Senha, dados.Tipo, dados.Hash)
 	//err := tx.Commit()
