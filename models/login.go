@@ -94,10 +94,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			session.Values["autorizado"] = true
 			session.Save(r, w)
 			CheckSession(w, r)
-			LogAcesso(user.Nome, user.Tipo, "Sucesso")
+			//LogAcesso(user.Nome, user.Tipo, "Sucesso")
 			http.Redirect(w, r, "/internal", 302)
 		}
-		LogAcesso(user.Nome, user.Tipo, "Falha")
+		//LogAcesso(user.Nome, user.Tipo, "Falha")
 		http.Redirect(w, r, "/", 302)
 	}
 }
