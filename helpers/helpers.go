@@ -1,6 +1,9 @@
 package helpers
 
 import (
+	"fmt"
+
+	"github.com/DiegoSantosWS/cms/cone"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -14,4 +17,22 @@ func HashPassword(password string) (string, error) {
 func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
+}
+
+func GetNameGrupo(id int) (string, error) {
+	var name string
+	sql := "SELECT name FROM group WHERE id = ?"
+	rows, err := cone.Db.Queryx(sql, id)
+	if err != nil {
+		fmt.Println("Erro: nome não encontrado", err.Error())
+		return "", err
+	}
+	for rows.Next() {
+		err = rows.Scan(&name)
+		if err != nil {
+			fmt.Println("Erro: nome não encontrado", err.Error())
+			return "", err
+		}
+	}
+	return string(name), nil
 }

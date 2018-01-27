@@ -34,5 +34,16 @@ func Routers() {
 	r.HandleFunc("/newcategorias", models.NewCategorias)               //Abre formulario para cadastrar um nova categoria
 	r.HandleFunc("/categorias/{method}/{id}", models.DeleteCategorias) //Deleta uma categoria
 
+	r.HandleFunc("/conteudo", models.Conteudos)                     //Abre lista de conteudo
+	r.HandleFunc("/conteudo/{id}", models.UpdateConteudos)          //Abre cadastro de conteudo para editar
+	r.HandleFunc("/newconteudo", models.NewConteudos)               //Abre formulario para cadastrar um nova conteudo
+	r.HandleFunc("/conteudo/{method}/{id}", models.DeleteConteudos) //Deleta um conteudo
+
+	r.HandleFunc("/api/lisContent", models.ListContent)
+	r.HandleFunc("/api/listGroup", models.ListGroup)
+	r.HandleFunc("/api/listCategorysByGroup/{id}", models.ListCategorysByGroup)
+	r.HandleFunc("/api/listContentByID/{id}", models.ListContentByID)
+	r.HandleFunc("/api/upload/{id}", models.Upload)
+
 	http.ListenAndServe(":12345", r) //inicia o servidor recebendo as rotas atravez do objeto r
 }

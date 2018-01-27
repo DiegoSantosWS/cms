@@ -18,4 +18,8 @@ var (
 	ModelosCategorias  = template.Must(template.ParseFiles("view/categorias/listCategoria.html"))
 	ModelosCategoriasC = template.Must(template.ParseFiles("view/categorias/AltCategoria.html"))
 	ModelosCategoriasN = template.Must(template.ParseFiles("view/categorias/newCategoria.html"))
+
+	ModelosConteudo  = template.Must(template.ParseFiles("view/conteudos/listConteudo.html"))
+	ModelosConteudoC = template.Must(template.ParseFiles("view/conteudos/altConteudo.html"))
+	ModelosConteudoN = template.Must(template.ParseFiles("view/conteudos/newConteudo.html"))
 )
