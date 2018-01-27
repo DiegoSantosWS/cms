@@ -12,7 +12,7 @@ Sistema ainda está em Desenvolvimento por tanto ainda não colocarei explicaç�
   <li> 3 - So começar a usar no seu site.</li>
 </ul>
 <h1><b>Enviando Imagem</b></h1>
-<p><a href="https://github.com/DiegoSantosWS/cms/models/apis.go#L256">Example</a></p>
+<p><a href="https://github.com/DiegoSantosWS/cms/blob/master/apis.go#L256">Example</a></p>
 <code>
 func Upload(w http.ResponseWriter, r *http.Request) {
 
