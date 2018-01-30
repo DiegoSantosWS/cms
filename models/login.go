@@ -69,7 +69,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 		//Vamos verificar se usuario se senha Existe
 		user := UsuarioLogado{}
-		sql := "SELECT id, name, email, login, pass FROM users WHERE login =? "
+		sql := "SELECT id, name, email, login, pass, type FROM users WHERE login =? "
 		rows, err := cone.Db.Queryx(sql, usr.User)
 		if err != nil {
 			fmt.Println("[LOGIN] Erro ao executar o login", sql, " - ", err.Error())
@@ -106,15 +106,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 func CheckSession(w http.ResponseWriter, r *http.Request) {
 	session, _ := Store.Get(r, "logado")
 	if auth, ok := session.Values["autorizado"].(bool); !ok || !auth {
-		http.Error(w, "Acesso negado", http.StatusForbidden)
-		http.Redirect(w, r, "/", 302)
+		http.Error(w, "Acesso negado", http.StatusInternalServerError)
 		return
 	}
 }
 
 //LogAcesso salva um log de acesso false ou true
 func LogAcesso(usr, tipo, status string) {
-
 	sql := "INSERT INTO log_access (user, tipo, status, data) VALUES (?,?,?, NOW() ) "
 	_, err := cone.Db.Exec(sql, usr, tipo, status, time.Now().Format("02/01/2006 15:04:05"))
 	if err != nil {

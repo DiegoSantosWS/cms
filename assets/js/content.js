@@ -1,3 +1,6 @@
+/**
+ * Inicio do onload
+ */
 $(document).ready(function(){
     //Carrega Lista de conteudos cadastrados
     $.ajax({
@@ -46,8 +49,11 @@ $(document).ready(function(){
     var url = window.location.href.split("/")
     var last = url.pop()
     getDadosContent(url[3], last);
-})
-
+});//FIM DO ONLOAD
+/**
+ * Retorna todas as categorias referente a um grupo
+ * @param {*codigo do grupo} grupo 
+ */
 function getCategorias(grupo) {
     //Montar um option para categorias
     $.ajax({
@@ -63,7 +69,11 @@ function getCategorias(grupo) {
         }
     });
 }
-
+/**
+ * Retorna as informações do conteudo
+ * @param {*modulo no qual estamos acessando} mod 
+ * @param {*codigo referente ao modulo} id 
+ */
 function getDadosContent(mod, id) {
     if (mod == "conteudo" && id !="") {
         $.ajax({
@@ -125,12 +135,19 @@ function getDadosContent(mod, id) {
         });
     }
 }
-
+/**
+ * Abre template para carregar alterar um conteudo
+ * @param {*} id 
+ */
 function updateContent(id) {
     setTimeout(function(){
         window.location= "/conteudo/"+id;
     },100)
 }
+/**
+ * Monta tabela com todos os arquivos do conteudo
+ * @param {*} id 
+ */
 function listFileContent(id) {
     $.ajax({
         url: "/api/listFileContent/"+id,
@@ -140,10 +157,11 @@ function listFileContent(id) {
             var html = "";
             jQuery.each(JSON.parse(data), function(i, item){
                 html += "<tr>";
-                html += "<td><img src='/static/"+item.path+"' width='50' height='50'></td>";
+                html += "<td><a href='/static/"+item.path+"' download><img src='/static/"+item.path+"' width='50' height='50'></a></td>";
                 html += "<td>"+item.nome+"</td>";
+                html += "<td><input name='coment' id='"+item.id+"' value='"+item.comentario+"' onchange='saveComent("+item.id+",this.value)'></td>";
                 html += "<td>";
-                html += "<button class='btn btn-danger' onclick='excludeFile("+item.id+")' title='exclude'><i class='fa fa-trash fa-2 text-secundary' aria-hidden='true'></i></button>";
+                html += "<button class='btn btn-danger' onclick='excludeFile("+item.id+", "+id+")' title='exclude'><i class='fa fa-trash fa-2 text-secundary' aria-hidden='true'></i></button>";
                 html += "</td>";
                 html += "</tr>"; 
             })
@@ -151,6 +169,55 @@ function listFileContent(id) {
         }
     });
 }
+/**
+ * Exclui um arquivo relacioanado a um conteudo e volta para pagina corrata
+ * @param {*id arquivo} id 
+ * @param {* id do conteudo mãe} content 
+ */
+function excludeFile(id, content) {
+    $.ajax({
+        url: "/api/deleteComent/"+id,
+        type:"PST",
+        success:function(data) {
+            jQuery.each(JSON.parse(data), function(i, item){
+                if (item.status === 302)  {
+                    swal('Alterado!',item.menssage,'success');
+                    setTimeout(function(){
+                        window.location= "/conteudo/"+content;
+                    },1000)
+                } else {
+                    swal('Erro!',item.menssage,'error');
+                }
+            });
+        }
+    });
+}
+/**
+ * Salva um comentarios para foto
+ * @param {*codigo do comentario} id 
+ * @param {*valor a ser inserido} value 
+ */
+function saveComent(id, value) {
+    $.ajax({
+        url: "/api/saveComent/",
+        type:"GET",
+        data: {cod:id, valor:value},
+        success:function(data) {
+            jQuery.each(JSON.parse(data), function(i, item){
+                if (item.status === 302)  {
+                    swal('Alterado!',item.menssage,'success');
+                } else {
+                    swal('Erro!',item.menssage,'error');
+                }
+            });
+        }
+    });
+
+}
+/**
+ * Excluindo um conteudo
+ * @param {*int} id 
+ */
 function excludeContent(id) {
     swal({
         title: 'DELETE?',
@@ -179,7 +246,10 @@ function excludeContent(id) {
         }
     })
 }
-
+/**
+ * Execução em segundo plano
+ * @param {*} params 
+ */
 function deleteC(params) {
     $.ajax({
         url: "/api/"+params,
@@ -206,8 +276,4 @@ function deleteC(params) {
             })
         }
     });
-}
-
-function newFunction() {
-    return "content";
 }

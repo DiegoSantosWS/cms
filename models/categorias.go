@@ -188,6 +188,7 @@ func UpdateCategorias(w http.ResponseWriter, r *http.Request) {
 
 //DeleteCategorias deleta um grupo
 func DeleteCategorias(w http.ResponseWriter, r *http.Request) {
+	CheckSession(w, r)
 	vars := mux.Vars(r)
 	id := vars["id"]
 	methods := vars["method"]

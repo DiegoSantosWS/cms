@@ -133,6 +133,7 @@ func UpdateGrupos(w http.ResponseWriter, r *http.Request) {
 
 //DeleteGrupos deleta um grupo
 func DeleteGrupos(w http.ResponseWriter, r *http.Request) {
+	CheckSession(w, r)
 	vars := mux.Vars(r)
 	id := vars["id"]
 	methods := vars["method"]

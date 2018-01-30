@@ -46,5 +46,7 @@ func Routers() {
 	r.HandleFunc("/api/upload", models.Upload)
 	r.HandleFunc("/api/deleteContent/{id}", models.DeleteContent)
 	r.HandleFunc("/api/listFileContent/{id}", models.ListFileContent)
+	r.HandleFunc("/api/saveComent/", models.SaveComent)
+	r.HandleFunc("/api/deleteComent/{id}", models.DeleteComent)
 	http.ListenAndServe(":3000", r) //inicia o servidor recebendo as rotas atravez do objeto r
 }

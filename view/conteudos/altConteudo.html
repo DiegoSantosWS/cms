@@ -10,6 +10,7 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
         <link rel="stylesheet" href="/static/css/style.css" >
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.8.2/sweetalert2.min.css">
     </head>
     <body>
         <div class="container">
@@ -106,24 +107,25 @@
                         <input name="codigo" id="codigo" type="hidden">
                         <div class="form-group col-6">
                             <label>Enviar arquvos</label>
-                            <input name="uploadfile" id="file" type="file" class="form-control">
+                            <input name="uploadfile" id="file" type="file" class="form-control" required="required">
                         </div>
                     </div>
                     <button type="submit" class="btn btn-lg btn-success">Enviar</button>
                 </form>
                 
-                    <table class="table table-responsive table-striped" style="width:100%; height: 100%;">
-                        <tr>
-                            <th>FOTO</th>
-                            <th>NOME</th>
-                            <th>AÇÕES</th>
-                        </tr>
-                        <tbody id="files">
+                <table class="table table-responsive table-striped mt-3" style="width:100%; height: 100%;">
+                    <tr>
+                        <th>FOTO</th>
+                        <th>NOME</th>
+                        <th>COMENTARIO</th>
+                        <th>AÇÕES</th>
+                    </tr>
+                    <tbody id="files">
 
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
+        </div>
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
         <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
@@ -132,5 +134,6 @@
         <script src="https://use.fontawesome.com/752dbceb52.js"></script>
         <script src="/static/js/content.js"></script>
         <script src="https://momentjs.com/downloads/moment.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.8.2/sweetalert2.min.js"></script>
     </body>
 </html>

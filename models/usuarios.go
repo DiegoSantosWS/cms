@@ -148,6 +148,7 @@ func UpdateUsuario(w http.ResponseWriter, r *http.Request) {
 
 //DeleteUsuario deleta um usuario
 func DeleteUsuario(w http.ResponseWriter, r *http.Request) {
+	CheckSession(w, r)
 	vars := mux.Vars(r)
 	id := vars["id"]
 	meths := vars["method"]

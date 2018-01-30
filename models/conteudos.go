@@ -74,6 +74,7 @@ func Conteudos(w http.ResponseWriter, r *http.Request) {
 
 //UpdateConteudos alterando informações de conteudos
 func UpdateConteudos(w http.ResponseWriter, r *http.Request) {
+	CheckSession(w, r)
 	id, err := strconv.Atoi(r.URL.Path[10:])
 	if err != nil {
 		http.Error(w, "Não foi enviado um codigo valido.", http.StatusBadRequest)
@@ -133,6 +134,7 @@ func DeleteConteudos(w http.ResponseWriter, r *http.Request) {
 }
 
 func listConteudo(sqlString string) (string, error) {
+
 	rows, err := cone.Db.Queryx(sqlString)
 	if err != nil {
 		fmt.Println("[CONTEUDO] Erro ao buscar informações de conteudo: ", sqlString, " - ", err.Error())

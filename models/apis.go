@@ -14,6 +14,7 @@ import (
 
 //ListContent lista conteudo cadastrados
 func ListContent(w http.ResponseWriter, r *http.Request) {
+	CheckSession(w, r)
 	sql := "SELECT c.id, c.title, c.description, c.date_ini, c.date_end, c.group, c.category_content  FROM content as c "
 	rows, err := cone.Db.Queryx(sql)
 	if err != nil {
@@ -78,6 +79,7 @@ func GetNameGrupo(id string) string {
 
 //GetNameCategoria retorna nome da categoria
 func GetNameCategoria(id string) string {
+
 	var name string
 	sql := "SELECT categoria as name FROM categorys WHERE id = ?"
 	rows, err := cone.Db.Queryx(sql, id)
@@ -97,6 +99,7 @@ func GetNameCategoria(id string) string {
 
 //ListGroup retorna lista das categorias
 func ListGroup(w http.ResponseWriter, r *http.Request) {
+	CheckSession(w, r)
 	sql := "SELECT g.id, g.name  FROM groups as g "
 	rows, err := cone.Db.Queryx(sql)
 	if err != nil {
@@ -129,6 +132,7 @@ func ListGroup(w http.ResponseWriter, r *http.Request) {
 
 //ListCategorysByGroup LISTA CATEGORIAS POR GRUPO
 func ListCategorysByGroup(w http.ResponseWriter, r *http.Request) {
+	CheckSession(w, r)
 	idgroup, err := strconv.Atoi(r.URL.Path[26:])
 	if err != nil {
 		http.Error(w, "Não foi enviado um codigo valido.", http.StatusBadRequest)
@@ -168,7 +172,7 @@ func ListCategorysByGroup(w http.ResponseWriter, r *http.Request) {
 
 //ListContentByID LISTA CONTEUDO PELO ID
 func ListContentByID(w http.ResponseWriter, r *http.Request) {
-
+	CheckSession(w, r)
 	idcontent, err := strconv.Atoi(r.URL.Path[21:])
 	if err != nil {
 		http.Error(w, "Não foi enviado um codigo valido.", http.StatusBadRequest)
@@ -215,7 +219,7 @@ func ListContentByID(w http.ResponseWriter, r *http.Request) {
 
 //DeleteContent deleta conteudo conforme id informado
 func DeleteContent(w http.ResponseWriter, r *http.Request) {
-
+	CheckSession(w, r)
 	var status int
 	var menssage string
 
@@ -253,7 +257,9 @@ func DeleteContent(w http.ResponseWriter, r *http.Request) {
 	w.Write(delete)
 }
 
+//ListFileContent retorna lista dos  aqruivos cadastrados
 func ListFileContent(w http.ResponseWriter, r *http.Request) {
+	CheckSession(w, r)
 	id, err := strconv.Atoi(r.URL.Path[21:])
 	if err != nil {
 		http.Error(w, "Não foi enviado um codigo valido.", http.StatusBadRequest)
@@ -261,7 +267,7 @@ func ListFileContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sql := "SELECT c.id, c.nome, c.path  FROM ged as c WHERE idref = ?"
+	sql := "SELECT c.id, c.nome, c.path, c.comentario  FROM ged as c WHERE idref = ?"
 	rows, err := cone.Db.Queryx(sql, id)
 	if err != nil {
 		fmt.Println("[CONTEUDO] Erro ao buscar informações de arquivos: ", sql, " - ", err.Error())
@@ -269,9 +275,10 @@ func ListFileContent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type Ged struct {
-		ID      int    `json:"id"`
-		Nome    string `json:"nome"`
-		Caminho string `json:"path"`
+		ID         int    `json:"id"`
+		Nome       string `json:"nome"`
+		Caminho    string `json:"path"`
+		Comentario string `json:"comentario"`
 	}
 	defer rows.Close()
 
@@ -280,9 +287,10 @@ func ListFileContent(w http.ResponseWriter, r *http.Request) {
 		var id int
 		var nome string
 		var path string
+		var comentario string
 
-		rows.Scan(&id, &nome, &path)
-		ged = append(ged, Ged{id, nome, path})
+		rows.Scan(&id, &nome, &path, &comentario)
+		ged = append(ged, Ged{id, nome, path, comentario})
 	}
 	gedData, err := json.Marshal(&ged)
 	if err != nil {
@@ -294,7 +302,7 @@ func ListFileContent(w http.ResponseWriter, r *http.Request) {
 
 //Upload faz uploade para um diretorios
 func Upload(w http.ResponseWriter, r *http.Request) {
-
+	CheckSession(w, r)
 	r.ParseMultipartForm(32 << 20)
 	files, handler, err := r.FormFile("uploadfile")
 	if err != nil {
@@ -327,4 +335,92 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	}
 	s := fmt.Sprintf("/conteudo/%s", id)
 	http.Redirect(w, r, s, 302)
+}
+
+//SaveComent salva comentario de um arquivo
+func SaveComent(w http.ResponseWriter, r *http.Request) {
+	CheckSession(w, r)
+	var (
+		id       int
+		coment   string
+		status   int
+		menssage string
+	)
+	type Msg struct {
+		Status   int    `json:"status"`
+		Menssage string `json:"menssage"`
+	}
+	var retorno []Msg
+	id, err := strconv.Atoi(r.FormValue("cod"))
+	if err != nil {
+		fmt.Println("[DELETE] erro codigo não encontado - ", err.Error())
+		status = 301
+		menssage = "Codigo não encontrado"
+	}
+	coment = r.FormValue("valor")
+
+	sql := "UPDATE ged SET `comentario`=?  WHERE id = ?"
+	stmt, err := cone.Db.Exec(sql, coment, id)
+	if err != nil {
+		fmt.Println("[updateGED:] Erro em alterar comentario", sql, " - ", err.Error())
+		status = 301
+		menssage = "Erro nã alteração"
+	}
+	_, errs := stmt.RowsAffected()
+	if errs != nil {
+		http.Error(w, "[ERROR:]Não foi possível alterar comentario ", http.StatusInternalServerError)
+		fmt.Println("[ERROR]Não foi possível alterar comentario ", errs.Error())
+		status = 301
+		menssage = "Erro não foi possível inserir o menentario"
+	}
+	status = 302
+	menssage = "Comentario alterado com sucesso"
+	retorno = append(retorno, Msg{status, menssage})
+	dados, err := json.Marshal(&retorno)
+	if err != nil {
+		fmt.Println("[GRUPO] Erro ao buscar informações de GRUPO: ", err.Error())
+		return
+	}
+
+	w.Write(dados)
+}
+
+//DeleteComent excluindo um registro do banco de dados
+func DeleteComent(w http.ResponseWriter, r *http.Request) {
+	CheckSession(w, r)
+	var status int
+	var menssage string
+
+	id, err := strconv.Atoi(r.URL.Path[18:])
+	if err != nil {
+		http.Error(w, "Codigo não informado", http.StatusInternalServerError)
+		fmt.Println("Codigo não encontrado", err.Error())
+		status = 404
+		menssage = "Codigo não encontrado"
+	}
+
+	type MsgGed struct {
+		Status   int    `json:"status"`
+		Menssage string `json:"menssage"`
+	}
+	var mGed []MsgGed
+
+	if id > 0 {
+		sql, err := cone.Db.Queryx("DELETE FROM ged WHERE id = ?", id)
+		if err != nil {
+			http.Error(w, "[DELETE] erro ao delatar ,", http.StatusInternalServerError)
+			fmt.Println("[DELETE] erro ao deletar", sql, " - ", err.Error())
+			status = 301
+			menssage = "Codigo encontrado encontrado"
+		}
+		status = 302
+		menssage = "Arquivo excluido com sucesso"
+	}
+	mGed = append(mGed, MsgGed{status, menssage})
+	ged, err := json.Marshal(&mGed)
+	if err != nil {
+		fmt.Println("[GRUPO] Erro ao buscar informações de GRUPO: ", err.Error())
+		return
+	}
+	w.Write(ged)
 }
