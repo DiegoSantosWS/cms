@@ -17,7 +17,7 @@ The installation part is being developed.
 	<p style="color:red;">By default system runs on the port http://localhost:3000/</p>
 	<p>After creating the database, <a href="https://github.com/DiegoSantosWS/cms/blob/master/cone/conexao.go#L15">access the file conexao.go</a> and change connection data for your username and password</p>
 	<div id='installation'>
-		<p style="color:red;">URL: http://localhost:3000/install</p>
+		<p style="color:#ccc;">URL: http://localhost:3000/install</p>
 		<p>
 		After performing the install, set whether the system created the tables correctly, if not,
 		you have created copy the code that is in the root and run in your database.
