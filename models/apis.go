@@ -1,12 +1,9 @@
 package models
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"strconv"
@@ -15,6 +12,7 @@ import (
 	"github.com/DiegoSantosWS/cms/cone"
 )
 
+//ListContent lista conteudo cadastrados
 func ListContent(w http.ResponseWriter, r *http.Request) {
 	sql := "SELECT c.id, c.title, c.description, c.date_ini, c.date_end, c.group, c.category_content  FROM content as c "
 	rows, err := cone.Db.Queryx(sql)
@@ -24,7 +22,7 @@ func ListContent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type Contents struct {
-		Id        int    `json:"id"`
+		ID        int    `json:"id"`
 		Titulo    string `json:"title"`
 		Descricao string `json:"description"`
 		DataIni   string `json:"date_ini"`
@@ -36,15 +34,20 @@ func ListContent(w http.ResponseWriter, r *http.Request) {
 
 	var contents []Contents
 	for rows.Next() {
-		var id int
-		var title string
-		var group string
-		var description, date_ini, date_end, category_content string
+		var (
+			id              int
+			title           string
+			group           string
+			description     string
+			dateIni         string
+			dateEnd         string
+			categoryContent string
+		)
 
-		rows.Scan(&id, &title, &description, &date_ini, &date_end, &group, &category_content)
+		rows.Scan(&id, &title, &description, &dateIni, &dateEnd, &group, &categoryContent)
 		g := GetNameGrupo(group)
-		c := GetNameCategoria(category_content)
-		contents = append(contents, Contents{id, title, description, date_ini, date_end, g, c})
+		c := GetNameCategoria(categoryContent)
+		contents = append(contents, Contents{id, title, description, dateIni, dateEnd, g, c})
 	}
 	contentData, err := json.Marshal(&contents)
 	if err != nil {
@@ -54,6 +57,7 @@ func ListContent(w http.ResponseWriter, r *http.Request) {
 	w.Write(contentData)
 }
 
+//GetNameGrupo retorna nome do grupo
 func GetNameGrupo(id string) string {
 	var name string
 	sql := "SELECT name FROM groups WHERE id = ?"
@@ -72,6 +76,7 @@ func GetNameGrupo(id string) string {
 	return string(name)
 }
 
+//GetNameCategoria retorna nome da categoria
 func GetNameCategoria(id string) string {
 	var name string
 	sql := "SELECT categoria as name FROM categorys WHERE id = ?"
@@ -90,6 +95,7 @@ func GetNameCategoria(id string) string {
 	return string(name)
 }
 
+//ListGroup retorna lista das categorias
 func ListGroup(w http.ResponseWriter, r *http.Request) {
 	sql := "SELECT g.id, g.name  FROM groups as g "
 	rows, err := cone.Db.Queryx(sql)
@@ -99,7 +105,7 @@ func ListGroup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type Groups struct {
-		Id   int    `json:"id"`
+		ID   int    `json:"id"`
 		Nome string `json:"name"`
 	}
 	defer rows.Close()
@@ -121,6 +127,7 @@ func ListGroup(w http.ResponseWriter, r *http.Request) {
 	w.Write(groupData)
 }
 
+//ListCategorysByGroup LISTA CATEGORIAS POR GRUPO
 func ListCategorysByGroup(w http.ResponseWriter, r *http.Request) {
 	idgroup, err := strconv.Atoi(r.URL.Path[26:])
 	if err != nil {
@@ -137,7 +144,7 @@ func ListCategorysByGroup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type Categorys struct {
-		Id   int    `json:"id"`
+		ID   int    `json:"id"`
 		Nome string `json:"categoria"`
 	}
 	defer rows.Close()
@@ -159,6 +166,7 @@ func ListCategorysByGroup(w http.ResponseWriter, r *http.Request) {
 	w.Write(categorysData)
 }
 
+//ListContentByID LISTA CONTEUDO PELO ID
 func ListContentByID(w http.ResponseWriter, r *http.Request) {
 
 	idcontent, err := strconv.Atoi(r.URL.Path[21:])
@@ -176,7 +184,7 @@ func ListContentByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type Conts struct {
-		Id        int    `json:"id"`
+		ID        int    `json:"id"`
 		Titulo    string `json:"title"`
 		Descricao string `json:"description"`
 		DataIni   string `json:"date_ini"`
@@ -205,54 +213,86 @@ func ListContentByID(w http.ResponseWriter, r *http.Request) {
 	w.Write(contData)
 }
 
-func postFile(filename string, targetUrl string) error {
-	bodyBuf := &bytes.Buffer{}
+//DeleteContent deleta conteudo conforme id informado
+func DeleteContent(w http.ResponseWriter, r *http.Request) {
 
-	bodyWriter := multipart.NewWriter(bodyBuf)
+	var status int
+	var menssage string
 
-	fileWriter, err := bodyWriter.CreateFormFile("uploadfile", filename)
+	idcontent, err := strconv.Atoi(r.URL.Path[19:])
 	if err != nil {
-		fmt.Println("Error writing buffer", err.Error())
-		return err
+		http.Error(w, "Codigo não informado", http.StatusInternalServerError)
+		fmt.Println("Codigo não encontrado", err.Error())
+		status = 404
+		menssage = "Codigo não encontrado"
 	}
 
-	//open file handle
-	fmt.Println("FILE NAME: ", filename)
-	fh, err := os.Open(filename)
-	if err != nil {
-		fmt.Println("Error os in open file:", err.Error())
-		return err
+	type Msgs struct {
+		Status   int    `json:"status"`
+		Menssage string `json:"menssage"`
 	}
-	defer fh.Close()
+	var cats []Msgs
 
-	//copy file to directory
-	_, err = io.Copy(fileWriter, fh)
-	if err != nil {
-		fmt.Println("Error os in copy file from directory:", err.Error())
-		return err
+	if idcontent > 0 {
+		sql, err := cone.Db.Queryx("DELETE FROM content WHERE id = ?", idcontent)
+		if err != nil {
+			http.Error(w, "[DELETE] erro ao delatar um conteudo ,", http.StatusInternalServerError)
+			fmt.Println("[DELETE] erro ao deletar um conteudo", sql, " - ", err.Error())
+			status = 301
+			menssage = "Codigo encontrado encontrado"
+		}
+		status = 302
+		menssage = "Codigo encontrado encontrado"
 	}
-
-	contentType := bodyWriter.FormDataContentType()
-	bodyWriter.Close()
-
-	resp, err := http.Post(targetUrl, contentType, bodyBuf)
+	cats = append(cats, Msgs{status, menssage})
+	delete, err := json.Marshal(&cats)
 	if err != nil {
-		fmt.Println("Error teste:", err.Error())
-		return err
+		fmt.Println("[GRUPO] Erro ao buscar informações de GRUPO: ", err.Error())
+		return
 	}
-	defer resp.Body.Close()
-
-	resp_body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println("Error RESP BODY:", err.Error())
-		return err
-	}
-
-	fmt.Println("Status: \n", resp.Status)
-	fmt.Println("Body: \n", string(resp_body))
-	return nil
+	w.Write(delete)
 }
 
+func ListFileContent(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.URL.Path[21:])
+	if err != nil {
+		http.Error(w, "Não foi enviado um codigo valido.", http.StatusBadRequest)
+		fmt.Println("[GRUPO] Erro id não econtrado", err.Error())
+		return
+	}
+
+	sql := "SELECT c.id, c.nome, c.path  FROM ged as c WHERE idref = ?"
+	rows, err := cone.Db.Queryx(sql, id)
+	if err != nil {
+		fmt.Println("[CONTEUDO] Erro ao buscar informações de arquivos: ", sql, " - ", err.Error())
+		return
+	}
+
+	type Ged struct {
+		ID      int    `json:"id"`
+		Nome    string `json:"nome"`
+		Caminho string `json:"path"`
+	}
+	defer rows.Close()
+
+	var ged []Ged
+	for rows.Next() {
+		var id int
+		var nome string
+		var path string
+
+		rows.Scan(&id, &nome, &path)
+		ged = append(ged, Ged{id, nome, path})
+	}
+	gedData, err := json.Marshal(&ged)
+	if err != nil {
+		fmt.Println("[CONTEUDO] Erro ao buscar informações de conteudo: ", err.Error())
+		return
+	}
+	w.Write(gedData)
+}
+
+//Upload faz uploade para um diretorios
 func Upload(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(32 << 20)
@@ -266,17 +306,25 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	//Novo nome do arquivo
 	namenewFile := time.Now().Format("02012006150405") + handler.Filename
 
-	f, err := os.OpenFile("uploadfile/"+namenewFile, os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile("assets/uploadfile/"+namenewFile, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 	defer f.Close()
 	io.Copy(f, files)
-	idcontent, err := strconv.Atoi(r.URL.Path[12:])
+	id := r.FormValue("codigo")
+	nome := namenewFile
+	caminho := "uploadfile/" + namenewFile
+	sql := "INSERT INTO ged (`nome`, `idref`, `path`) VALUES (?,?,?) "
+	stmt, err := cone.Db.Exec(sql, nome, id, caminho)
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println("[CADGED:] Erro na inclusão da imagem ", sql, " - ", err.Error())
 	}
-	s := fmt.Sprintf("/conteudo/%d", idcontent)
+	_, errs := stmt.RowsAffected()
+	if errs != nil {
+		fmt.Println("[CADGED:] Erro ao pegar numero de linhas", sql, " - ", err.Error())
+	}
+	s := fmt.Sprintf("/conteudo/%s", id)
 	http.Redirect(w, r, s, 302)
 }

@@ -43,7 +43,8 @@ func Routers() {
 	r.HandleFunc("/api/listGroup", models.ListGroup)
 	r.HandleFunc("/api/listCategorysByGroup/{id}", models.ListCategorysByGroup)
 	r.HandleFunc("/api/listContentByID/{id}", models.ListContentByID)
-	r.HandleFunc("/api/upload/{id}", models.Upload)
-
-	http.ListenAndServe(":12345", r) //inicia o servidor recebendo as rotas atravez do objeto r
+	r.HandleFunc("/api/upload", models.Upload)
+	r.HandleFunc("/api/deleteContent/{id}", models.DeleteContent)
+	r.HandleFunc("/api/listFileContent/{id}", models.ListFileContent)
+	http.ListenAndServe(":3000", r) //inicia o servidor recebendo as rotas atravez do objeto r
 }

@@ -1,7 +1,7 @@
 $(document).ready(function(){
     //Carrega Lista de conteudos cadastrados
     $.ajax({
-        url: "http://localhost:12345/api/lisContent",
+        url: "/api/lisContent",
         type:"jsonp",
         crossDomain: true,
         success:function(data) {
@@ -15,8 +15,10 @@ $(document).ready(function(){
                 html += "<td>"+moment(item.date_end).format('DD/MM/YYYY')+"</td>";
                 html += "<td>"+item.group+"</td>";
                 html += "<td>"+item.category_content+"</td>";
-                html += "<td><a href='/conteudo/"+item.id+"' title='edit'><i class='fa fa-eye text-primary' aria-hidden='true'></i></a>"+
-                "<a href='/conteudo/delete/"+item.id+"' title='exclude'><i class='fa fa-trash fa-2 text-danger' aria-hidden='true'></i></a></td>";
+                html += "<td>";
+                html += "<button class='btn btn-primary' onclick='updateContent("+item.id+")' title='exclude'><i class='fa fa-eye fa-2 text-secundary' aria-hidden='true'></i></button>&nbsp;";
+                html += "<button class='btn btn-danger' onclick='excludeContent("+item.id+")' title='exclude'><i class='fa fa-trash fa-2 text-secundary' aria-hidden='true'></i></button>";
+                html += "</td>";
                 html += "</tr>"; 
             })
             $("#res").html(html)
@@ -24,7 +26,7 @@ $(document).ready(function(){
     });
     //Montar um option para grupos
     $.ajax({
-        url: "http://localhost:12345/api/listGroup",
+        url: "/api/listGroup",
         type:"jsonp",
         crossDomain: true,
         success:function(data) {
@@ -49,7 +51,7 @@ $(document).ready(function(){
 function getCategorias(grupo) {
     //Montar um option para categorias
     $.ajax({
-        url: "http://localhost:12345/api/listCategorysByGroup/"+grupo,
+        url: "/api/listCategorysByGroup/"+grupo,
         type:"POST",
         crossDomain: true,
         success:function(data) {
@@ -65,7 +67,7 @@ function getCategorias(grupo) {
 function getDadosContent(mod, id) {
     if (mod == "conteudo" && id !="") {
         $.ajax({
-            url: "http://localhost:12345/api/listContentByID/"+id,
+            url: "/api/listContentByID/"+id,
             type:"jsonp",
             crossDomain: true,
             success:function(result) {
@@ -78,9 +80,10 @@ function getDadosContent(mod, id) {
                 $("#groupsC").val(result[0].group);
                 $("#categoriaContent").val(result[0].category_content);
                 $("#texto").val(result[0].text);
+                $("#codigo").val(result[0].id);
 
                 $.ajax({
-                    url: "http://localhost:12345/api/listGroup",
+                    url: "/api/listGroup",
                     type:"jsonp",
                     crossDomain: true,
                     success:function(data) {
@@ -99,7 +102,7 @@ function getDadosContent(mod, id) {
                 });
 
                 $.ajax({
-                    url: "http://localhost:12345/api/listCategorysByGroup/"+result[0].group,
+                    url: "/api/listCategorysByGroup/"+result[0].group,
                     type:"POST",
                     crossDomain: true,
                     success:function(data) {
@@ -116,9 +119,93 @@ function getDadosContent(mod, id) {
                         $("#categoriaContent").html(options)
                     }
                 });
+
+                listFileContent(result[0].id);
             }
         });
     }
+}
+
+function updateContent(id) {
+    setTimeout(function(){
+        window.location= "/conteudo/"+id;
+    },100)
+}
+function listFileContent(id) {
+    $.ajax({
+        url: "/api/listFileContent/"+id,
+        type:"POST",
+        crossDomain: true,
+        success:function(data) {
+            var html = "";
+            jQuery.each(JSON.parse(data), function(i, item){
+                html += "<tr>";
+                html += "<td><img src='/static/"+item.path+"' width='50' height='50'></td>";
+                html += "<td>"+item.nome+"</td>";
+                html += "<td>";
+                html += "<button class='btn btn-danger' onclick='excludeFile("+item.id+")' title='exclude'><i class='fa fa-trash fa-2 text-secundary' aria-hidden='true'></i></button>";
+                html += "</td>";
+                html += "</tr>"; 
+            })
+            $("#files").html(html)
+        }
+    });
+}
+function excludeContent(id) {
+    swal({
+        title: 'DELETE?',
+        text: "VOCÊ REAMENTE DESEJA EXCLUIR ESSA INFORMAÇÃO?",
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        cancelButtonText: 'NÃO! ',
+        confirmButtonText: 'SIM! ',
+        confirmButtonClass: 'btn btn-success',
+        cancelButtonClass: 'btn btn-danger',
+        buttonsStyling: false,
+        reverseButtons: true
+      }).then((result) => {
+        if (result.value) {
+            deleteC("deleteContent/"+id);
+            // result.dismiss can be 'cancel', 'overlay',
+            // 'close', and 'timer'
+        } else if (result.dismiss === 'cancel') {
+            swal(
+                'Cancelled',
+                'Your imaginary file is safe :)',
+                'error'
+            )
+        }
+    })
+}
+
+function deleteC(params) {
+    $.ajax({
+        url: "/api/"+params,
+        type:"post",
+        crossDomain: true,
+        success:function(data) {
+            jQuery.each(JSON.parse(data), function(i, item){
+                if (item.status == 302) {
+                    swal(
+                        'Deleted!',
+                        'Conteudo Excluido.',
+                        'success'
+                        )
+                        setTimeout(function() {
+                            window.location='/conteudo'
+                        }, 1000)
+                } else {
+                    swal(
+                        'Deleted!',
+                        'Conteudo não Excluido.',
+                        'error'
+                    )
+                }
+            })
+        }
+    });
 }
 
 function newFunction() {
