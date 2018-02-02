@@ -15,6 +15,11 @@ import (
 //ListContent lista conteudo cadastrados
 func ListContent(w http.ResponseWriter, r *http.Request) {
 	CheckSession(w, r)
+	session, _ := Store.Get(r, "logado")
+	if session.Values["Tipo"] == "Admin" {
+		fmt.Printf("Você é: %s do tipo: %s e codigo: %d seu email é: %s\n", session.Values["Nome"], session.Values["Tipo"], session.Values["ID"], session.Values["Email"])
+		fmt.Printf("Você é: %s\n", session.Values["Tipo"])
+	}
 	sql := "SELECT c.id, c.title, c.description, c.date_ini, c.date_end, c.group, c.category_content  FROM content as c "
 	rows, err := cone.Db.Queryx(sql)
 	if err != nil {

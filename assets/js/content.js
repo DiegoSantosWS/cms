@@ -9,24 +9,27 @@ $(document).ready(function(){
         crossDomain: true,
         success:function(data) {
             var html = "";
-            jQuery.each(JSON.parse(data), function(i, item){
-                html += "<tr>";
-                html += "<td>"+item.id+"</td>";
-                html += "<td>"+item.title+"</td>";
-                html += "<td>"+item.description+"</td>";
-                html += "<td>"+moment(item.date_ini).format('DD/MM/YYYY')+"</td>";
-                html += "<td>"+moment(item.date_end).format('DD/MM/YYYY')+"</td>";
-                html += "<td>"+item.group+"</td>";
-                html += "<td>"+item.category_content+"</td>";
-                html += "<td>";
-                html += "<button class='btn btn-primary' onclick='updateContent("+item.id+")' title='exclude'><i class='fa fa-eye fa-2 text-secundary' aria-hidden='true'></i></button>&nbsp;";
-                html += "<button class='btn btn-danger' onclick='excludeContent("+item.id+")' title='exclude'><i class='fa fa-trash fa-2 text-secundary' aria-hidden='true'></i></button>";
-                html += "</td>";
-                html += "</tr>"; 
-            })
-            $("#res").html(html)
+            setTimeout(function() {
+                jQuery.each(JSON.parse(data), function(i, item){
+                    html += "<tr>";
+                    html += "<td>"+item.id+"</td>";
+                    html += "<td>"+item.title+"</td>";
+                    html += "<td>"+item.description+"</td>";
+                    html += "<td>"+moment(item.date_ini).format('DD/MM/YYYY')+"</td>";
+                    html += "<td>"+moment(item.date_end).format('DD/MM/YYYY')+"</td>";
+                    html += "<td>"+item.group+"</td>";
+                    html += "<td>"+item.category_content+"</td>";
+                    html += "<td>";
+                    html += "<button class='btn btn-primary' onclick='updateContent("+item.id+")' title='exclude'><i class='fa fa-eye fa-2 text-secundary' aria-hidden='true'></i></button>&nbsp;";
+                    html += "<button class='btn btn-danger' onclick='excludeContent("+item.id+")' title='exclude'><i class='fa fa-trash fa-2 text-secundary' aria-hidden='true'></i></button>";
+                    html += "</td>";
+                    html += "</tr>"; 
+                })
+                $("#res").html(html)    
+            },10);
         }
     });
+    
     //Montar um option para grupos
     $.ajax({
         url: "/api/listGroup",
